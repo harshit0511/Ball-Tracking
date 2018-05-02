@@ -29,6 +29,7 @@ def opticalflowLK(img1, img2, kernel_size):
     #of = [[(0.0, 0.0)] * width for i in range(height)]
     ofu = np.zeros(shape = (y_range, x_range), dtype = 'float64')
     ofv = np.zeros(shape = (y_range, x_range), dtype = 'float64')
+    ofm = np.zeros(shape = (y_range, x_range), dtype = 'float64')
     A = np.zeros(shape = (2, 2), dtype = 'int16')
     B = np.zeros(shape = (2, 1), dtype = 'int16')
 
@@ -74,10 +75,12 @@ def opticalflowLK(img1, img2, kernel_size):
 
             ofu[i][j] = v[0][0]
             ofv[i][j] = v[1][0]
+            ofm[i][j] = np.sqrt(v[0][0] ** 2 + v[1][0] ** 2)
+         
 
     x = np.linspace(0, x_range, x_range)
     y = np.linspace(y_range, 0 , y_range)
     plt.figure(figsize = (12, 8))
     plt.quiver(x, y, ofu, ofv, scale = 200)
     plt.show()
-    return ofu, ofv
+    return ofu, ofv, ofm
