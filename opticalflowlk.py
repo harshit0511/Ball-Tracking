@@ -78,6 +78,6 @@ def opticalflowLK(img1, img2, kernel_size):
     x = np.linspace(0, x_range, x_range)
     y = np.linspace(y_range, 0 , y_range)
     plt.figure(figsize = (12, 8))
-    plt.quiver(x, y, ofu, ofv, scale = 500)
+    plt.quiver(x, y, ofu, ofv, scale = 200)
     plt.show()
     return ofu, ofv
