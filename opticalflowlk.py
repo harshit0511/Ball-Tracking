@@ -84,3 +84,10 @@ def opticalflowLK(img1, img2, kernel_size):
     plt.quiver(x, y, ofu, ofv, scale = 100)
     plt.show()
     return ofu, ofv, ofm
+    
+img1 = cv2.imread("ball/ball-0.png", 0)
+img2 = cv2.imread("ball/ball-1.png", 0)
+fig1 = cv2.GaussianBlur(img1, (5, 5), 0).astype('int16')
+fig2 = cv2.GaussianBlur(img2, (5, 5), 0).astype('int16')
+
+opticalflowLK(fig1, fig2, 5)
