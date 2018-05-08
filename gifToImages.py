@@ -15,4 +15,4 @@ def gifToImages(gifName):
             break;
     return True
 
-gifToImages("square")
+gifToImages("square2")
