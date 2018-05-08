@@ -54,8 +54,8 @@ def cornerDetector(img1, img2, wx, wy, window_size, kernel_size):
             #store the Ixx, Ixy, Iyy, Itx, Ity for the Lucas Algorithm
             #Ix[x - wx][y - wy] = (img1[x][y + 1] - img1[x][y - 1]) / 2
             #Iy[x - wx][y - wy] = (img1[x + 1][y] - img1[x - 1][y]) / 2
-            Ix[x - wx][y - wy] = img1[x][y + 1] - img1[x][y]
-            Iy[x - wx][y - wy] = img1[x + 1][y] - img1[x][y]
+            Ix[x - wx][y - wy] = img1[x][y + 1] - img1[x][y - 1]
+            Iy[x - wx][y - wy] = img1[x + 1][y] - img1[x - 1][y]
             It[x - wx][y - wy] = img2[x][y] - img1[x][y]
 
             Ixx[x - wx][y - wy] = Ix[x - wx][y - wy] * Ix[x - wx][y - wy]
@@ -69,7 +69,9 @@ def cornerDetector(img1, img2, wx, wy, window_size, kernel_size):
             #Ixy = Ix * Iy
             #Itx = It * Ix
             #Ity = It * Iy
-
+            
+    for x in range(lboundx, uboundx):
+        for y in range(lboundy, uboundy):
             # calculate matrix M
             M = np.zeros(shape = (2, 2))
             for i in range(-mid_kernel, mid_kernel + 1):
@@ -94,13 +96,13 @@ def cornerDetector(img1, img2, wx, wy, window_size, kernel_size):
             
             R[x - wx][y - wy] = np.linalg.det(M) - 0.04 * (np.trace(M)) * (np.trace(M))
 
-            if R[x - wx][y - wy] > 0:
+            if R[x - wx][y - wy] > 50000000:
                 #print(R[x - wx][y - wy], (x - wx, y - wy))
                 #pointdict.update({(x - wx, y - wy): R[x - wx][y - wy]})
                 pointdict.update({(x - wx, y - wy): R[x - wx][y - wy]})
                 #pointlist.append((x - wx, y - wy))
 
-
+    print(pointdict)
     return Ixx, Ixy, Iyy, Itx, Ity, pointdict
     #print (pointdict)
     #print (pointlist)
@@ -132,7 +134,7 @@ def localmaxima(pointdict, kernel_size):
             del pointdict[i]
 
     #get the remain keys in the point dictionary
-    print(pointdict)
+    #print(pointdict)
     resultlist = list(pointdict.keys())
 
     return resultlist
@@ -140,22 +142,23 @@ def localmaxima(pointdict, kernel_size):
     #return Ixx, Ixy, Iyy, Itx, Ity, resultlist
 
 
-def vector_field(n):
-    img1 = cv2.imread("ball2/ball2-{}.png".format(n), 0)
-    img2 = cv2.imread("ball2/ball2-{}.png".format(n+1), 0)
-    img3 = cv2.imread("ball2/ball2-2.png", 0)
+def vector_field(name, n):
+    img1 = cv2.imread("{}/{}-{}.png".format(name, name, n), 0)
+    img2 = cv2.imread("{}/{}-{}.png".format(name, name, n+1), 0)
+    #img3 = cv2.imread("{}/{}-2.png", 0)
     fig1 = cv2.GaussianBlur(img1, (5, 5), 0).astype('int16')
     fig2 = cv2.GaussianBlur(img2, (5, 5), 0).astype('int16')
-    fig3 = cv2.GaussianBlur(img3, (5, 5), 0).astype('int16')
+    #fig3 = cv2.GaussianBlur(img3, (5, 5), 0).astype('int16')
     height, width = img1.shape
     #pointlist = cornerDetector(fig1, fig2, 0, 0, height, 3)
     Ixx, Ixy, Iyy, Itx, Ity, pointdict = cornerDetector(fig1, fig2, 0, 0, height, 3)
     #Ixx, Ixy, Iyy, Itx, Ity, pointlist = cornerDetector(fig2, fig3, 0, 0, height, 3)
     pointlist = localmaxima(pointdict, 3)
     vlist = lk.LucasKanade(Ixx, Ixy, Iyy, Itx, Ity, pointlist, 3)
+    
     print(vlist)
 
-    img = cv2.imread("ball2/ball2-{}.png".format(n))
+    img = cv2.imread("{}/{}-{}.png".format(name, name, n))
     for i in range (len(pointlist)):
         #cv2.circle(img, (pointlist[i][1], pointlist[i][0]), 1, (0, 0, 255), -1)
         cv2.arrowedLine(img, 
@@ -164,7 +167,10 @@ def vector_field(n):
         (int(pointlist[i][1] + vlist[i][0][0]), 
         int(pointlist[i][0] + vlist[i][1][0])), 
         (0, 0, 255))
-    cv2.imwrite('ball2/test-{}.png'.format(n), img)
+    #for i in pointlist:
+    #    img[i[0],i[1]] = [0,0,255]
+    
+    cv2.imwrite('{}/test-{}.png'.format(name, n), img)
     
     return vlist
 
@@ -174,5 +180,5 @@ def vector_field(n):
 #2nd harris = 35.999999999999716 (112, 48) 39.36000000000004 (118, 41)
 
 for i in range(0, 16):
-    vector_field(i)
+    vector_field("square", i)
 
