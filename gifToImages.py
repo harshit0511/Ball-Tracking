@@ -15,4 +15,4 @@ def gifToImages(gifName):
             break;
     return True
 
-gifToImages("ball")
+gifToImages("ball2")
